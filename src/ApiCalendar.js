@@ -1,10 +1,10 @@
-const Config = require("../../../apiGoogleconfig.json");
+const Config = require("../../../apiGoogleconfig");
 class ApiCalendar {
     constructor() {
         this.sign = false;
         this.gapi = null;
         this.onLoadCallback = null;
-        this.calendar = 'primary';
+        this.calendar = "primary";
         try {
             this.updateSigninStatus = this.updateSigninStatus.bind(this);
             this.initClient = this.initClient.bind(this);
@@ -33,11 +33,14 @@ class ApiCalendar {
      * Auth to the google Api.
      */
     initClient() {
-        this.gapi = window['gapi'];
-        this.gapi.client.init(Config)
+        this.gapi = window["gapi"];
+        this.gapi.client
+            .init(Config)
             .then(() => {
             // Listen for sign-in state changes.
-            this.gapi.auth2.getAuthInstance().isSignedIn.listen(this.updateSigninStatus);
+            this.gapi.auth2
+                .getAuthInstance()
+                .isSignedIn.listen(this.updateSigninStatus);
             // Handle the initial sign-in state.
             this.updateSigninStatus(this.gapi.auth2.getAuthInstance().isSignedIn.get());
             if (this.onLoadCallback) {
@@ -53,12 +56,12 @@ class ApiCalendar {
      * And create gapi in global
      */
     handleClientLoad() {
-        this.gapi = window['gapi'];
+        this.gapi = window["gapi"];
         const script = document.createElement("script");
         script.src = "https://apis.google.com/js/api.js";
         document.body.appendChild(script);
         script.onload = () => {
-            window['gapi'].load('client:auth2', this.initClient);
+            window["gapi"].load("client:auth2", this.initClient);
         };
     }
     /**
@@ -123,12 +126,12 @@ class ApiCalendar {
     listUpcomingEvents(maxResults, calendarId = this.calendar) {
         if (this.gapi) {
             return this.gapi.client.calendar.events.list({
-                'calendarId': calendarId,
-                'timeMin': (new Date()).toISOString(),
-                'showDeleted': false,
-                'singleEvents': true,
-                'maxResults': maxResults,
-                'orderBy': 'startTime'
+                calendarId: calendarId,
+                timeMin: new Date().toISOString(),
+                showDeleted: false,
+                singleEvents: true,
+                maxResults: maxResults,
+                orderBy: "startTime"
             });
         }
         else {
@@ -144,22 +147,22 @@ class ApiCalendar {
      * @param {string} calendarId
      * @returns {any}
      */
-    createEventFromNow({ time, summary, description = '' }, calendarId = this.calendar) {
+    createEventFromNow({ time, summary, description = "" }, calendarId = this.calendar) {
         const event = {
             summary,
             description,
             start: {
-                dateTime: (new Date()).toISOString(),
-                timeZone: "Europe/Paris",
+                dateTime: new Date().toISOString(),
+                timeZone: "Europe/Paris"
             },
             end: {
-                dateTime: (new Date(new Date().getTime() + time * 60000)),
-                timeZone: "Europe/Paris",
+                dateTime: new Date(new Date().getTime() + time * 60000),
+                timeZone: "Europe/Paris"
             }
         };
         return this.gapi.client.calendar.events.insert({
-            'calendarId': calendarId,
-            'resource': event,
+            calendarId: calendarId,
+            resource: event
         });
     }
     /**
@@ -170,8 +173,8 @@ class ApiCalendar {
      */
     createEvent(event, calendarId = this.calendar) {
         return this.gapi.client.calendar.events.insert({
-            'calendarId': calendarId,
-            'resource': event,
+            calendarId: calendarId,
+            resource: event
         });
     }
 }
